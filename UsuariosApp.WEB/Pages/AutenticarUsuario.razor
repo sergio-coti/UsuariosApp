@@ -1,0 +1,113 @@
+﻿@* Mapeamento da URL (rota) desta página *@
+@page "/"
+
+@using UsuariosApp.WEB.ViewModels
+@using UsuariosApp.WEB.Responses
+@using UsuariosApp.WEB.Services
+@using Newtonsoft.Json
+
+<div class="m-3">
+    <div class="card">
+        <div class="card-body">
+
+            <h4>Autenticar Usuário</h4>
+            <p>Preencha suas credenciais de acesso:</p>
+
+            @* Exibindo mensagem de erro *@
+            @if(!string.IsNullOrEmpty(mensagemErro))
+            {
+                <div class="alert alert-danger">
+                    <strong>@mensagemErro</strong>
+                </div>
+            }
+
+            @* Estrutura de formulário para autenticação do usuário *@
+            <EditForm Model="@model" OnValidSubmit="@OnSubmit">
+
+                @* Componente para habilitar as validações *@
+                <DataAnnotationsValidator/>
+
+                <div class="mb-3">
+                    <label>Email de acesso:</label>
+                    <InputText type="text" class="form-control" @bind-Value="model.Email"
+                        placeholder="Digite seu email aqui."/>
+                    <div class="text-danger">
+                        <ValidationMessage For="@(() => model.Email)"/>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label>Senha de acesso:</label>
+                    <InputText type="password" class="form-control" @bind-Value="model.Senha"
+                        placeholder="Digite sua senha aqui."/>
+                    <div class="text-danger">
+                        <ValidationMessage For="@(() => model.Senha)" />
+                    </div>
+                </div>
+
+                <div class="mb-3 d-grid">
+                    <input type="submit" class="btn btn-primary" value="Acessar Sistema"/>
+                </div>
+
+                <div class="mb-3 d-grid">
+                    <NavLink href="/criar-usuario" class="btn btn-default">
+                        Não possui conta? <strong>Cadastre-se aqui!</strong>
+                    </NavLink>
+                </div>
+
+            </EditForm>
+
+        </div>
+    </div>
+</div>
+
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject AuthService Auth
+@inject NavigationManager Navigation
+
+@code {
+
+    //declarando a classe ViewModel utilizada nesta página
+    AutenticarUsuarioViewModel model = new AutenticarUsuarioViewModel();
+
+    //declarando variável para exibir erro
+    string mensagemErro;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await Auth.GetData();
+        if(data != null) //verificando se existe um usuário autenticado
+            Navigation.NavigateTo("/painel-principal", true);
+    }
+
+    //função executada no SUBMIT do formulário
+    protected async Task OnSubmit()
+    {
+        //enviando uma requisição para o ENDPOINT de autenticação de usuário da API
+        var response = await Http.PostAsJsonAsync("api/usuarios/autenticar", model);
+
+        //verificar se a API retornou sucesso
+        if(response.IsSuccessStatusCode)
+        {
+            //ler e deserializar os dados obtidos na resposta de sucesso
+            var data = JsonConvert.DeserializeObject<AutenticarUsuarioResponse>
+                (response.Content.ReadAsStringAsync().Result);
+
+            //gravar os dados do usuário autenticado na local storage
+            Auth.Register(data);
+
+            //navegar o usuário para a página principal do sistema
+            Navigation.NavigateTo("/painel-principal", true);
+        }
+        else
+        {
+            //capturando e deserializando a resposta de erro
+            var error = JsonConvert.DeserializeObject<ErrorResponse>
+                (response.Content.ReadAsStringAsync().Result);
+
+            //exibindo a mensagem de erro
+            mensagemErro = error.Message;
+        }
+    }
+}

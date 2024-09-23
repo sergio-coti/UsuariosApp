@@ -1,0 +1,130 @@
+﻿@* Mapeamento da URL (rota) desta página *@
+@page "/criar-usuario"
+
+@using UsuariosApp.WEB.ViewModels
+@using UsuariosApp.WEB.Responses
+@using Newtonsoft.Json
+
+<div class="m-3">
+    <div class="card">
+        <div class="card-body">
+
+            <h4>Criar Usuário</h4>
+            <p>Preencha seus dados para criar uma conta de acesso:</p>
+
+            @* Exibindo mensagem de sucesso *@
+            @if(!string.IsNullOrEmpty(mensagemSucesso))
+            {
+                <div class="alert alert-success">
+                    <strong>@mensagemSucesso</strong>       
+                </div>
+            }
+
+            @* Exibindo mensagem de erro *@
+            @if(!string.IsNullOrEmpty(mensagemErro))
+            {
+                <div class="alert alert-danger">
+                    <strong>@mensagemErro</strong>       
+                </div>
+            }
+
+            @* Definindo a estrutura do formulário *@
+            <EditForm Model="@model" OnValidSubmit="@OnSubmit">
+
+                @* Habilitando as validações *@
+                <DataAnnotationsValidator/>
+
+                <div class="mb-3">
+                    <label>Nome do usuário:</label>
+                    <InputText type="text" class="form-control" @bind-Value="@model.Nome"
+                        placeholder="Digite seu nome aqui." />
+                    <div class="text-danger">
+                        <ValidationMessage For="@(() => model.Nome)"/>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label>Email de acesso:</label>
+                    <InputText type="text" class="form-control" @bind-Value="@model.Email" 
+                        placeholder="Digite seu email aqui." />
+                    <div class="text-danger">
+                        <ValidationMessage For="@(() => model.Email)"/>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label>Senha de acesso:</label>
+                    <InputText type="password" class="form-control" @bind-Value="@model.Senha" 
+                        placeholder="Digite sua senha aqui." />
+                    <div class="text-danger">
+                        <ValidationMessage For="@(() => model.Senha)" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label>Confirme sua senha:</label>
+                    <InputText type="password" class="form-control" @bind-Value="@model.SenhaConfirmacao"
+                        placeholder="Confirme sua senha aqui." />
+                    <div class="text-danger">
+                        <ValidationMessage For="@(() => model.SenhaConfirmacao)"/>
+                    </div>
+                </div>
+
+                <div class="mb-3 d-grid">
+                    <input type="submit" class="btn btn-success" value="Realizar Cadastro" />
+                </div>
+
+                <div class="mb-3 d-grid">
+                    <NavLink href="" Match="NavLinkMatch.All" class="btn btn-default">
+                        Já possui conta? <strong>Acesse aqui!</strong>
+                    </NavLink>
+                </div>
+
+            </EditForm>
+
+        </div>
+    </div>
+</div>
+
+@* Injeção de dependência *@
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+@code {
+
+    //classe de modelo de dados para captura do formulário
+    CriarUsuarioViewModel model = new CriarUsuarioViewModel();
+
+    //variáveis para exibição de mensagens
+    string mensagemSucesso;
+    string mensagemErro;
+
+    //função para executar o SUBMIT do formulário
+    protected async Task OnSubmit()
+    {
+        //limpando as mensagens
+        mensagemSucesso = string.Empty;
+        mensagemErro = string.Empty;
+
+        //enviando uma requisição para o ENDPOINT de cadastro de usuário da API
+        var response = await Http.PostAsJsonAsync("api/usuarios/criar", model);
+
+        //verificar se a API retornou sucesso
+        if(response.IsSuccessStatusCode)
+        {
+            //escrevendo mensagem de sucesso para o usuário
+            mensagemSucesso = $"Parabéns, {model.Nome}. Sua conta foi criada com sucesso.";
+            //limpando o conteúdo do formulário
+            model = new CriarUsuarioViewModel();
+        }
+        else
+        {
+            //capturando a resposta de erro obtida
+            var error = JsonConvert.DeserializeObject<ErrorResponse>
+                (response.Content.ReadAsStringAsync().Result);
+
+            //capturar mensagem de erro
+            mensagemErro = error.Message;
+        }        
+    }
+}

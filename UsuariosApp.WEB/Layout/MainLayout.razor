@@ -1,0 +1,51 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            @if(IsAuthenticated)
+            {
+                <div>
+                    <strong>@response.Nome</strong> (@response.Email) 
+                    <button class="ms-3 btn btn-light" @onclick="(() => Logout())">Sair do Sistema</button>
+                </div>
+            }
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@using UsuariosApp.WEB.Services
+@using UsuariosApp.WEB.Responses
+
+@inject AuthService Auth
+@inject NavigationManager Navigation
+
+@code {
+
+
+    //variáveis do componente
+    AutenticarUsuarioResponse response = new AutenticarUsuarioResponse();    
+    bool IsAuthenticated = false;
+
+    //função executada sempre que o componente for carregado
+    protected override async Task OnInitializedAsync()
+    {        
+        response = await Auth.GetData(); //capturar os dados do usuário autenticado na local storage
+        IsAuthenticated = response != null;  //guardando uma flag para sabe se o usuário está autenticado
+    }
+
+    //função para realizar o logout do usuário
+    protected async Task Logout()
+    {
+        await Auth.Remove(); //apagar os dados gravados na local storage
+        Navigation.NavigateTo("/", true); //navegando para a página inicial
+    }
+}

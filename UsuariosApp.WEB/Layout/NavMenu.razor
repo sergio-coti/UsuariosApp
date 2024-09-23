@@ -1,0 +1,60 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">UsuariosApp.WEB</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+
+        @if(IsAuthenticated)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="painel-principal">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Painel Principal
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Autenticar Usuário
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="criar-usuario">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Criar Usuário
+                </NavLink>
+            </div>
+        }
+
+    </nav>
+</div>
+
+@using UsuariosApp.WEB.Services
+
+@inject AuthService Auth
+
+@code {
+
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    bool IsAuthenticated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsAuthenticated = await Auth.GetData() != null;
+    }
+}

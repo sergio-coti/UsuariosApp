@@ -1,0 +1,76 @@
+﻿@* Mapeamento da URL (rota) desta página *@
+@page "/painel-principal"
+
+<div class="m-3">
+    <div class="card">
+        <div class="card-body">
+
+            <h4>Painel principal</h4>
+            <p>Seja bem-vindo ao sistema!</p>
+
+            <div class="table-responsive mt-2">
+                <table class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <td>Id:</td>
+                            <td>@usuario.Id</td>
+                        </tr>
+                        <tr>
+                            <td>Nome do usuário:</td>
+                            <td>@usuario.Nome</td>
+                        </tr>
+                        <tr>
+                            <td>Email:</td>
+                            <td>@usuario.Email</td>
+                        </tr>
+                        <tr>
+                            <td>Perfil:</td>
+                            <td>@usuario.Perfil</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@using UsuariosApp.WEB.Services
+@using UsuariosApp.WEB.Responses
+@using System.Net.Http.Headers
+@using Newtonsoft.Json
+
+@inject AuthService Auth
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+@code {
+
+    ObterDadosUsuarioResponse usuario = new ObterDadosUsuarioResponse();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //capturar o token do usuário gravado na local storage
+        var data = await Auth.GetData();
+        var token = data.AccessToken;
+
+        //configurando o TOKEN de autorização do usuário
+        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        //consultar os dados do usuário na API
+        var result = await Http.GetAsync("api/usuarios/obter-dados");
+
+        //verificando se o retorno foi sucesso
+        if(result.IsSuccessStatusCode)
+        {
+            //capturando e deserializando os dados obtidos da API
+            var content = await result.Content.ReadAsStringAsync();
+            usuario = JsonConvert.DeserializeObject<ObterDadosUsuarioResponse>(content);
+        }
+        else
+        {
+            //exibir o conteúdo do erro no console do navegador
+            await JS.InvokeVoidAsync("console.log", result.Content.ReadAsStringAsync().Result);
+        }
+    }
+}

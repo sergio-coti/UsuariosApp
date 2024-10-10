@@ -44,32 +44,6 @@ O projeto segue a arquitetura de camadas, com as seguintes divisões:
 - RabbitMQ instalado ou instância em nuvem
 - Visual Studio 2022 ou outro editor de código compatível
 
-## Configuração do Projeto
-
-1. Clone o repositório:
-    ```bash
-    git clone https://github.com/seu-usuario/usuarios-app.git
-    ```
-
-2. Configure as variáveis de ambiente no arquivo `appsettings.json` para o MongoDB e RabbitMQ:
-
-    ```json
-    "ConnectionStrings": {
-      "MongoDb": "mongodb://localhost:27017/UsuariosApp",
-      "RabbitMQ": "amqp://guest:guest@localhost:5672/"
-    }
-    ```
-
-3. Execute as migrações do Entity Framework para gerar as tabelas no banco de dados relacional:
-    ```bash
-    update-database
-    ```
-
-4. Compile e execute o projeto:
-    ```bash
-    dotnet run
-    ```
-
 ## Documentação e Testes
 
 - A API está documentada utilizando o Swagger e pode ser acessada em `http://localhost:{porta}/swagger`.

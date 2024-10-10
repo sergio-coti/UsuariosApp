@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Program.cs~RF4cca0118.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UsuariosApp.Domain\UsuariosApp.Domain.csproj" />
+    <ProjectReference Include="..\UsuariosApp.Infra.Data\UsuariosApp.Infra.Data.csproj" />
+    <ProjectReference Include="..\UsuariosApp.Infra.Messages\UsuariosApp.Infra.Messages.csproj" />
+    <ProjectReference Include="..\UsuariosApp.Infra.Security\UsuariosApp.Infra.Security.csproj" />
+  </ItemGroup>
+
+</Project>

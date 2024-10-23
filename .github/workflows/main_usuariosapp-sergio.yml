@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - usuariosapp-sergio
+name: Build and deploy ASP.Net Core app to Azure Web App - usuarioapp
 
 on:
   push:
@@ -25,13 +25,16 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o ./myapp
+
+      - name: Compress published app into a ZIP
+        run: Compress-Archive -Path ./myapp/* -DestinationPath ./myapp.zip  # Compactar a aplicação em um arquivo ZIP
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./myapp.zip  # Fazer upload do arquivo ZIP
 
   deploy:
     runs-on: windows-latest
@@ -59,7 +62,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'usuariosapp-sergio'
+          app-name: 'usuarioapp'
           slot-name: 'Production'
-          package: .
+          package: './myapp.zip'  # Usar o arquivo ZIP gerado
           

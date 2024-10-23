@@ -24,6 +24,9 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
+      - name: Build test project
+        run: dotnet build UsuariosApp.Tests/UsuariosApp.Tests.csproj --configuration Release
+
       - name: dotnet publish
         run: dotnet publish -c Release -o ./myapp
 
@@ -36,9 +39,24 @@ jobs:
           name: .net-app
           path: ./myapp.zip  # Fazer upload do arquivo ZIP
 
-  deploy:
+  test:
     runs-on: windows-latest
     needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Run tests with dotnet
+        run: dotnet test UsuariosApp.Tests/UsuariosApp.Tests.csproj --configuration Release
+
+  deploy:
+    runs-on: windows-latest
+    needs: test
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}

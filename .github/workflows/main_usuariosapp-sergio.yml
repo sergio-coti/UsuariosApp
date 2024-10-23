@@ -62,7 +62,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'usuarioapp-sergio'
+          app-name: 'usuariosapp-sergio'
           slot-name: 'Production'
           package: './myapp.zip'  # Usar o arquivo ZIP gerado
           

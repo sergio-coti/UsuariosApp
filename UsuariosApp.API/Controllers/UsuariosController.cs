@@ -36,9 +36,6 @@ namespace UsuariosApp.API.Controllers
         [ProducesResponseType(typeof(AutenticarUsuarioResponseDto), 200)]
         public async Task<IActionResult> Autenticar([FromBody] AutenticarUsuarioRequestDto dto)
         {
-            return StatusCode(500, new { message = "Falha ao autenticar o usuário." });
-
-            /*
             try
             {
                 return StatusCode(200, await _usuarioService.AutenticarAsync(dto));
@@ -47,7 +44,6 @@ namespace UsuariosApp.API.Controllers
             {
                 return StatusCode(401, new { e.Message });
             }
-            */
         }
 
 
